@@ -35,7 +35,7 @@ def getUnprocessedFiles(spark,directory,obj):
     files = dbutils.fs.ls(directory)
     if max_ts is not None:
         files = [f for f in files if f.modificationTime > max_ts]
-    files = [{"file_path":f.path, "object":"product","modification_time":f.modificationTime} for f in files]
+    files = [{"file_path":f.path, "object":obj,"modification_time":f.modificationTime} for f in files]
     return files
 
 # COMMAND ----------
