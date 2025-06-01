@@ -19,3 +19,8 @@
 pip install -r requirements.txt
 ```
 - run the test in the test folder using pytest
+
+# sample output
+![img.png](screenshot/year.png)
+![img.png](screenshot/year_cat.png)
+![img.png](screenshot/year_cus.png)
