@@ -43,15 +43,18 @@ def load_dataset(spark,files):
 
 # COMMAND ----------
 
+def clean_customer_data(df):
+    return df.withColumn('customer_name',trim(regexp_replace(regexp_replace('customer_name', r"[^a-zA-Z\s]", ""), r"\s+", " "))) \
+        .withColumn('email', regexp_replace('email', r"[^\w\.\@\+\-]", "")) \
+        .withColumn('phone', when(length(regexp_replace(col("phone"), r"\D", "")) < 10, None) \
+            .otherwise(regexp_replace(col("phone"), r"\D", "") \
+            ))
+
 def load_enrich_data(spark,src):
     print("loading data to silver layer")
     df = spark.sql(f"select * from {src}")
     #clean the data
-    df = df.withColumn('customer_name', trim(regexp_replace(regexp_replace('customer_name',r"[^a-zA-Z\s]", ""),r"\s+", " ")))\
-    .withColumn('email', regexp_replace('email',r"[^\w\.\@\+\-]", ""))\
-    .withColumn('phone',when(length(regexp_replace(col("phone"), r"\D", "")) < 10,None)\
-        .otherwise(regexp_replace(col("phone"), r"\D", "")\
-        ))
+    df = clean_customer_data(df)
     win_spec=Window.partitionBy('customer_id').orderBy(col('load_ts').desc())
     df = df.withColumn("newest", row_number().over(win_spec)).filter(col("newest") == 1).drop("newest")
     return df

@@ -1,0 +1,28 @@
+[
+  {
+    "Row ID": 1,
+    "Order ID": "CA-2016-122581",
+    "Order Date": "21/8/2016",
+    "Ship Date": "25/8/2016",
+    "Ship Mode": "Standard Class",
+    "Customer ID": "JK-15370",
+    "Product ID": "FUR-CH-10002961",
+    "Quantity": 7,
+    "Price": 573.17,
+    "Discount": 0.3,
+    "Profit": 63.69
+  },
+  {
+    "Row ID": 2,
+    "Order ID": "CA-2017-117485",
+    "Order Date": "23/9/2017",
+    "Ship Date": "29/9/2017",
+    "Ship Mode": "Standard Class",
+    "Customer ID": "BD-11320",
+    "Product ID": "TEC-AC-10004659",
+    "Quantity": 4,
+    "Price": 291.96,
+    "Discount": 0
+    "Profit": 102.19
+  }
+]
