@@ -155,3 +155,32 @@ res
 # MAGIC   country string,
 # MAGIC   load_ts timestamp
 # MAGIC ) using delta
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC create schema if not exists gold
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC drop view if exists gold.kpi_agg;
+# MAGIC create view if not exists gold.kpi_agg as
+# MAGIC select
+# MAGIC   year(order_date) as order_year,
+# MAGIC   category,
+# MAGIC   sub_category,
+# MAGIC   customer_id,
+# MAGIC   sum(profit) as total_profit
+# MAGIC from
+# MAGIC   silver.order_enrich
+# MAGIC group by
+# MAGIC   order_year,
+# MAGIC   category,
+# MAGIC   sub_category,
+# MAGIC   customer_id
+# MAGIC order by
+# MAGIC   order_year,
+# MAGIC   category,
+# MAGIC   sub_category,
+# MAGIC   customer_id
