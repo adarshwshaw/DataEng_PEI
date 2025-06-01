@@ -9,16 +9,13 @@ if "DATABRICKS_RUNTIME_VERSION" not in os.environ:
 
 # COMMAND ----------
 
-# MAGIC %pip install openpyxl pandas
-
-# COMMAND ----------
-
 from pyspark.sql import SparkSession
 from pyspark.sql.types import *
 from pyspark.sql.functions import *
 from delta.tables import DeltaTable
 import pandas as pd
 from pyspark.sql.window import Window
+
 
 # COMMAND ----------
 
@@ -41,12 +38,13 @@ def load_dataset(spark,files):
     .option("header", "true")\
     .schema(schema)\
     .load("dbfs:/FileStore/customers/Customer.xlsx")
-
+    print("reading from source")
     return df
 
 # COMMAND ----------
 
 def load_enrich_data(spark,src):
+    print("loading data to silver layer")
     df = spark.sql(f"select * from {src}")
     #clean the data
     df = df.withColumn('customer_name', trim(regexp_replace(regexp_replace('customer_name',r"[^a-zA-Z\s]", ""),r"\s+", " ")))\
@@ -66,9 +64,11 @@ def main():
     df = load_dataset(spark,"dbfs:/FileStore/customers/Customer.xlsx")
     df = df.withColumn("load_ts", current_timestamp())
     df.write.mode("append").saveAsTable(raw_table)
+    print("done loading to raw layer")
     
     df1 = load_enrich_data(spark,raw_table)
     df1.write.mode('overwrite').saveAsTable("silver.customers")
+    print("done loading to silver layer")
     
 
 # COMMAND ----------

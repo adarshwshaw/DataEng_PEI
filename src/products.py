@@ -25,6 +25,7 @@ schema = StructType([
 ])
 
 def load_dataset(spark,files):
+    print("raeading data from raw layer")
     df = spark.read.option("header", True).option("mode", "PERMISSIVE")\
         .option("columnNameOfCorruptRecord", "_corrupt_record").csv(files, schema=schema)
     df = df.withColumn("load_ts", current_timestamp())
@@ -36,6 +37,7 @@ def load_enriched_data(spark,bronze_df, silver_table):
     #     bronze_df.alias("source"),on
     # ).whenMatchedUpdateAll(update_condition)\
     #     .whenNotMatchedInsertAll().execute()
+    print("merging delta")
     bronze_df.createOrReplaceTempView("bronze_t")
     query = f"""
         Merge into {silver_table} tar
@@ -57,14 +59,13 @@ def load_enriched_data(spark,bronze_df, silver_table):
     )
 
 
-
 def main():
     try:
         spark = SparkSession.builder.appName("PEI")\
             .getOrCreate()
 
         directory = "/FileStore/products"
-        # corrupt_path="/FileStore/badrecords/products"
+        corrupt_path="/FileStore/badrecords/products"
 
         files = getUnprocessedFiles(directory=directory, obj='product',  spark=spark)
         
@@ -74,9 +75,12 @@ def main():
             print("nothing to load")
             return 
         df.write.mode('append').saveAsTable('bronze.products')
+        print("done writing to raw layer")
+
         df1 = spark.sql("select product_id,category,sub_category,_corrupt_record,load_ts from bronze.products where _corrupt_record is null and load_ts = (select max(load_ts) from bronze.products)").dropDuplicates()
         mark_file_process(spark,files)
         load_enriched_data(spark,df1,"silver.products_1")
+        print("done writing to silver layer")
     except Exception as e:
         print(e)
     

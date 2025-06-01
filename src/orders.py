@@ -30,6 +30,7 @@ schema = StructType([
 ])
 
 def load_dataset(spark,files):
+    print("reading raw data")
     df = spark.read.option("header", True).option("mode", "PERMISSIVE")\
         .option("multiLine",True).schema(schema)\
         .option("columnNameOfCorruptRecord", "_corrupt_record").json(files)
@@ -37,6 +38,7 @@ def load_dataset(spark,files):
     return df
 
 def cleanSchema(df):
+    print("cleaning the schema")
     ori = df.columns
     new = [i.lower().replace(' ','_') for i in ori]
     for o_col,n_col in zip(ori,new):
@@ -44,6 +46,7 @@ def cleanSchema(df):
     return df
 
 def load_silver_table(spark,bronze_table,silver_table,customer_table,product_table):
+    print("loading data to silver layer")
     max_d = spark.sql(f"select max(load_ts) from {silver_table}").collect()[0][0]
     max_d = '1900-01-01' if max_d==None else max_d
     df = spark.sql(f"select row_id, order_id, order_date,customer_id,product_id,profit,load_ts,_corrupt_record from {bronze_table}")
@@ -56,7 +59,7 @@ def load_silver_table(spark,bronze_table,silver_table,customer_table,product_tab
         .join(broadcast(df_customer),on=df.customer_id==df_customer.customer_id,how="left")
     cols = [df1[c] for c in df1.columns]+[col("category"),col("sub_category"),col("customer_name"),df_customer.country]
     df2 = df2.fillna("unknown",subset=["category","sub_category"])\
-        .select(*cols)    
+        .select(*cols).withColumn("profit", round(col('profit'),2).cast(DecimalType(precision=38,scale=2)))
     return df2
     
 
@@ -77,10 +80,11 @@ def main():
             return
         df1 = cleanSchema(df)
         df1.write.mode('append').saveAsTable(bronze_table)
+        print("done loading to raw layer")
         mark_file_process(spark,files)
         df_enrich = load_silver_table(spark,bronze_table,silver_table,customer_table,product_table)
         df_enrich.write.mode('append').saveAsTable(silver_table)
-        print("done")
+        print("done loading to silver layer")
     except Exception as e:
         print(e)
 

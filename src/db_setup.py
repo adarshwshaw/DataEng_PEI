@@ -5,6 +5,10 @@ This file is to set up infrastucture and create tables in databricks community e
 
 # COMMAND ----------
 
+# MAGIC %pip install openpyxl pandas
+
+# COMMAND ----------
+
 paths=[
     "/FileStore/badrecords/products",
     "/user/hive/warehouse/bronze.db/processed_files",
@@ -148,7 +152,7 @@ res
 # MAGIC   order_date date,
 # MAGIC   customer_id string,
 # MAGIC   product_id string,
-# MAGIC   profit double,
+# MAGIC   profit decimal(38,2),
 # MAGIC   category string,
 # MAGIC   sub_category string,
 # MAGIC   customer_name string,
