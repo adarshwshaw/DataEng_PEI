@@ -64,14 +64,20 @@ def load_enrich_data(spark,src):
 
 def main():
     raw_table = "bronze.customers"
-    df = load_dataset(spark,"dbfs:/FileStore/customers/Customer.xlsx")
-    df = df.withColumn("load_ts", current_timestamp())
-    df.write.mode("append").saveAsTable(raw_table)
-    print("done loading to raw layer")
-    
-    df1 = load_enrich_data(spark,raw_table)
-    df1.write.mode('overwrite').saveAsTable("silver.customers")
-    print("done loading to silver layer")
+    try:
+        spark = SparkSession.builder.appName("PEI") \
+            .config("spark.jars.packages", "com.crealytics:spark-excel_2.12:0.13.7")\
+            .getOrCreate()
+        df = load_dataset(spark,"dbfs:/FileStore/customers/Customer.xlsx")
+        df = df.withColumn("load_ts", current_timestamp())
+        df.write.mode("append").saveAsTable(raw_table)
+        print("done loading to raw layer")
+
+        df1 = load_enrich_data(spark,raw_table)
+        df1.write.mode('overwrite').saveAsTable("silver.customers")
+        print("done loading to silver layer")
+    except Exception as e:
+        print(e)
     
 
 # COMMAND ----------

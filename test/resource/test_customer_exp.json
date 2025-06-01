@@ -1,0 +1,28 @@
+[
+        {
+            "customer_id":"PW-19240",
+            "customer_name":"Pierre Wener",
+            "email":"bettysullivan808@gmail.com",
+            "phone":"42158009029815",
+            "address":"001 Jones Ridges Suite 338Johnsonfort, FL 95462",
+            "segment":"Consumer",
+            "country":"United States",
+            "city":"Louisville",
+            "state":"Colorado",
+            "postal":"80027",
+            "region":"West"
+        },
+        {
+            "customer_id": "AH-10075",
+            "customer_name": "Adam Hart",
+            "email": "angelabryant256@gmail.com",
+            "phone": null,
+            "address": "01454 Christopher TurnpikeNorth Ryanstad, MI 36226",
+            "segment": "Corporate",
+            "country": "United States",
+            "city": "Columbus",
+            "state": "Ohio",
+            "postal": "43229",
+            "region": "East"
+        }
+    ]
